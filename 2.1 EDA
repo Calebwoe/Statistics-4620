@@ -1,1 +1,18 @@
+```{r}
+library(ISLR2)
+library(dplyr)
+#View(Boston)
+```
 
+### We first check for missing data
+```{r}
+data(Boston.Stat4620)
+any(is.na(Boston.Stat4620)) # see summary() for which missing values
+```
+
+### create variable summaries 
+```{r}
+summary(Boston.Stat4620)
+countCharles <- Boston.Stat4620 %>% count(chas == 1)
+# see 10 NA's in Resp
+```
