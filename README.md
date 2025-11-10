@@ -9,7 +9,7 @@ II. Data Analysis and Summary of Results \
 2.2 Model building and evaluation
 - test and training, multiple models and error evaluation
 
-III. Summary and discussion of results \
+III. Summary and discussion of results 
 - assumptions, assessments, findings, conclusions
 - form and estimated parameters
 -  text, plots, etc.
