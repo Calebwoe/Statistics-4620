@@ -6,8 +6,24 @@ library(dplyr)
 ### We first check for missing data
 ```{r}
 data(Boston.Stat4620)
-any(is.na(Boston.Stat4620)) # see summary() for which missing values
+any(is.na(Boston.Stat4620)) # # missing variables exist 
+summary(Boston.Stat4620) # Resp variables with 10 NA
 ```
+
+### Remove missing data and create updated variable summaries
+```{r}
+#bostonNA <- Boston.Stat4620 %>% filter(is.na(Resp)) #find rows with NA
+#bostonNA
+
+bostonClean <- Boston.Stat4620 %>% filter(!is.na(Resp))  #remove rows with NA
+any(is.na(bostonClean)) #now FALSE for NA
+summary(bostonClean)
+countCharles <- bostonClean %>% count(chas == 1) # count how many tracts 
+countCharles
+                                          
+```
+_______________________________ end data cleaning (remove this)
+
 
 ### Exploratory Analysis: Create Variable Summaries 
 ```{r}
