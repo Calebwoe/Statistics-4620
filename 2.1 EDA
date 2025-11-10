@@ -32,6 +32,7 @@ title("Figure 1: Scatter plots of each individual predictor variable and the res
 
 ### Exploratory Analysis: Histograms of Predictor Variables
 
+```{R}
 predictor_names = colnames(Boston)[1:14]
 
 # Plot first 4
@@ -63,3 +64,4 @@ for (i in 9:14) {
        col = "skyblue",
        border = "white")
 }
+```
