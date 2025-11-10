@@ -65,3 +65,42 @@ for (i in 9:14) {
        border = "white")
 }
 ```
+#Correlation Matrix
+```{r}
+library(ggcorrplot)
+Boston.Stat4620 <- Boston.Stat4620 %>%
+  mutate(Resp = as.numeric(Resp))
+numeric_vars <- Boston.Stat4620 %>% select_if(is.numeric)
+
+# Compute correlation matrix
+corr_matrix <- cor(numeric_vars, use = "complete.obs")
+resp_corr <- corr_matrix[,"Resp"] %>% sort(decreasing = TRUE)
+round(corr_matrix, 2)
+
+ggcorrplot(corr_matrix,
+           method = "square",
+           type = "lower",
+           lab = TRUE,
+           lab_size = 2.5,
+           title = "Correlation Matrix for Boston Dataset",
+           ggtheme = ggplot2::theme_minimal())
+
+
+# Correlations between predictors and the response variable
+resp_corr <- corr_matrix[,"Resp"] %>% sort(decreasing = TRUE)
+round(resp_corr, 3)
+
+```
+#Explanation
+#When looking at the correlation matrix, we see that the zn, rm, dis, black,
+and medv are all negatively correlated with the response variable. 
+The median value of homes has the largest negative correlation at -.6 
+meaning the higher the median value of homes in the area, the lower the 
+response variable is. We see that all other variables have a positive 
+correlation with the response variable including crime, ptratio and nox 
+meaning that the response increases when both crime and nitric oxide 
+increase. This means we see a higher increase in the resp when there 
+is poor education, socioeconomic disadvantage, lower income and higher 
+crime. Overall, predictors representing poorer neighborhood quality and
+urban density tend to increase the response variable. Indicators of weatlh
+and residential space correspond to lower response outcomes.
