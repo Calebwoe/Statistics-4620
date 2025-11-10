@@ -1,7 +1,6 @@
 ```{r}
 library(ISLR2)
 library(dplyr)
-#View(Boston)
 ```
 
 ### We first check for missing data
@@ -10,9 +9,21 @@ data(Boston.Stat4620)
 any(is.na(Boston.Stat4620)) # see summary() for which missing values
 ```
 
-### create variable summaries 
+### Exploratory Analysis: Create Variable Summaries 
 ```{r}
 summary(Boston.Stat4620)
 countCharles <- Boston.Stat4620 %>% count(chas == 1)
 # see 10 NA's in Resp
+```
+
+### Exploratory Analysis: Scatterplots of Predictor Variables and Response Variable
+```{r}
+predictors <- setdiff(names(Boston.Stat4620), "Resp")
+par(mfrow = c(3, 5))
+for (var in predictors) {
+  plot(Boston.Stat4620[[var]], Boston.Stat4620$Resp,
+       main = paste("Resp vs", var),
+       xlab = var, ylab = "Resp",
+       col = "blue", pch = 16)
+}
 ```
