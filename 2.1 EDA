@@ -44,7 +44,17 @@ for (var in predictors) {
 }
 title("Figure 1: Scatter plots of each individual predictor variable and the response variable.", outer = TRUE, line = -1, cex.main = 1.5
 ```
-### To further our exploratory analysis, we plotted each individual predictor variable against the response variable to visually assess potential correlations following the correlation matrix. As shown in Figure 1, several predictors exhibit clear relationships with the response. The scatterplot of Resp versus crim suggests a possible positive logistic relationship, as the data points follow a curved, logistic-like pattern. The variable chas appears to have a binomial relationship with Resp since the spread of values differs noticeably between chas = 0 and chas = 1. The relationship between Resp and nox appears to be roughly positive and linear, whereas rm shows the opposite trend, indicating a potential negative linear association with the response variable. A similar positive linear trend is observed between Resp and ptratio, while medv displays a negative linear pattern. Additionally, black may have a negative logistic relationship with Resp, and lstat may show a positive logistic pattern. The remaining variables display no apparent relationship with Resp, as their scatterplots show randomly scattered points with no discernible trend. Overall, the variables crim, chas, nox, rm, ptratio, medv, black, and lstat appear to have meaningful associations with the response variable and will be considered as predictors in our model selection process! 
+### To further our exploratory analysis, we plotted each individual predictor variable against the response variable to 
+visually assess potential correlations following the correlation matrix. As shown in Figure 1, several predictors exhibit clear 
+relationships with the response. The scatterplot of Resp versus crim suggests a possible positive logistic relationship, 
+as the data points follow a curved, logistic-like pattern. The variable chas appears to have a binomial relationship with Resp 
+since the spread of values differs noticeably between chas = 0 and chas = 1. The relationship between Resp and nox appears to be 
+roughly positive and linear, whereas rm shows the opposite trend, indicating a potential negative linear association with the response 
+variable. A similar positive linear trend is observed between Resp and ptratio, while medv displays a negative linear pattern. 
+Additionally, black may have a negative logistic relationship with Resp, and lstat may show a positive logistic pattern. 
+The remaining variables display no apparent relationship with Resp, as their scatterplots show randomly scattered points with no 
+discernible trend. Overall, the variables crim, chas, nox, rm, ptratio, medv, black, and lstat appear to have meaningful associations 
+with the response variable and will be considered as predictors in our model selection process! 
 
 ### Exploratory Analysis: Histograms of Predictor Variables
 
