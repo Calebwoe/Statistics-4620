@@ -3,80 +3,55 @@ library(ISLR2)
 library(dplyr)
 ```
 
-### We first check for missing data
+# Exploratory Analysis:
+
+## Check for Missing Data: 
 ```{r}
-data(Boston.Stat4620)
+library(ISLR2)
+library(dplyr)
+
+load("~/Downloads/STATS 4620/Boston_Stat4620_2023.RData")
 any(is.na(Boston.Stat4620)) # # missing variables exist 
 summary(Boston.Stat4620) # Resp variables with 10 NA
 ```
 
-### Remove missing data and create updated variable summaries
-```{r}
-#bostonNA <- Boston.Stat4620 %>% filter(is.na(Resp)) #find rows with NA
-#bostonNA
+### We can see from the above data summaries that the mystery response variable has 10 NAs, so we will remove these observations from our dataset.
 
+## Create Variable Summaries:
+
+```{r}
 bostonClean <- Boston.Stat4620 %>% filter(!is.na(Resp))  #remove rows with NA
-any(is.na(bostonClean)) #now FALSE for NA
+any(is.na(bostonClean)) #Check to make sure it is now FALSE for NA
 summary(bostonClean)
-countCharles <- bostonClean %>% count(chas == 1) # count how many tracts 
-countCharles
-                                          
-```
-_______________________________ end data cleaning (remove this)
-
-
-### Exploratory Analysis: Create Variable Summaries 
-```{r}
-summary(Boston.Stat4620)
-countCharles <- Boston.Stat4620 %>% count(chas == 1)
-# see 10 NA's in Resp
 ```
 
-### Exploratory Analysis: Scatterplots of Predictor Variables and Response Variable
-```{r}
-predictors <- setdiff(names(Boston.Stat4620), "Resp")
-par(mfrow = c(3, 5))
-for (var in predictors) {
-  plot(Boston.Stat4620[[var]], Boston.Stat4620$Resp,
-       main = paste("Resp vs", var),
-       xlab = var, ylab = "Resp",
-       col = "blue", pch = 16)
-}
-title("Figure 1: Scatter plots of each individual predictor variable and the response variable.", outer = TRUE, line = -1, cex.main = 1.5
-```
-### To further our exploratory analysis, we plotted each individual predictor variable against the response variable to 
-visually assess potential correlations following the correlation matrix. As shown in Figure 1, several predictors exhibit clear 
-relationships with the response. The scatterplot of Resp versus crim suggests a possible positive logistic relationship, 
-as the data points follow a curved, logistic-like pattern. The variable chas appears to have a binomial relationship with Resp 
-since the spread of values differs noticeably between chas = 0 and chas = 1. The relationship between Resp and nox appears to be 
-roughly positive and linear, whereas rm shows the opposite trend, indicating a potential negative linear association with the response 
-variable. A similar positive linear trend is observed between Resp and ptratio, while medv displays a negative linear pattern. 
-Additionally, black may have a negative logistic relationship with Resp, and lstat may show a positive logistic pattern. 
-The remaining variables display no apparent relationship with Resp, as their scatterplots show randomly scattered points with no 
-discernible trend. Overall, the variables crim, chas, nox, rm, ptratio, medv, black, and lstat appear to have meaningful associations 
-with the response variable and will be considered as predictors in our model selection process! 
+## Histograms of Predictor Variables: 
 
-### Exploratory Analysis: Histograms of Predictor Variables
-
-```{R}
-predictor_names = colnames(Boston)[1:14]
-
-# Plot first 4
+```{r}}
+predictors <- setdiff(names(bostonClean), "Resp")
+# Plot first 3
 par(mfrow=c(2,2))
-for (i in 1:4) {
-  hist(Boston[[predictor_names[i]]],
-       main = paste("Histogram of", predictor_names[i]),
-       xlab = predictor_names[i],
+for (i in 1:3) {
+  hist(bostonClean[[predictors[i]]],
+       main = paste("Histogram of", predictors[i]),
+       xlab = predictors[i],
        col = "skyblue",
        border = "white")
 }
 
+# Plot chas (factor variable)
+barplot(table(bostonClean$chas),
+        main = "Bar Plot of chas",
+        xlab = "chas",
+        ylab = "Count",
+        col = "skyblue")
+
 # Plot next 4
 par(mfrow=c(2,2))
 for (i in 5:8) {
-  hist(Boston[[predictor_names[i]]],
-       main = paste("Histogram of", predictor_names[i]),
-       xlab = predictor_names[i],
+  hist(bostonClean[[predictors[i]]],
+       main = paste("Histogram of", predictors[i]),
+       xlab = predictors[i],
        col = "skyblue",
        border = "white")
 }
@@ -84,14 +59,15 @@ for (i in 5:8) {
 # Plot last 5
 par(mfrow=c(3,3))
 for (i in 9:14) {
-  hist(Boston[[predictor_names[i]]],
-       main = paste("Histogram of", predictor_names[i]),
-       xlab = predictor_names[i],
+  hist(bostonClean[[predictors[i]]],
+       main = paste("Histogram of", predictors[i]),
+       xlab = predictors[i],
        col = "skyblue",
        border = "white")
 }
 ```
-#Correlation Matrix
+
+## Correlation Matrix:
 ```{r}
 library(ggcorrplot)
 Boston.Stat4620 <- Boston.Stat4620 %>%
@@ -115,18 +91,19 @@ ggcorrplot(corr_matrix,
 # Correlations between predictors and the response variable
 resp_corr <- corr_matrix[,"Resp"] %>% sort(decreasing = TRUE)
 round(resp_corr, 3)
-
 ```
-#Explanation
-#When looking at the correlation matrix, we see that the zn, rm, dis, black,
-and medv are all negatively correlated with the response variable. 
-The median value of homes has the largest negative correlation at -.6 
-meaning the higher the median value of homes in the area, the lower the 
-response variable is. We see that all other variables have a positive 
-correlation with the response variable including crime, ptratio and nox 
-meaning that the response increases when both crime and nitric oxide 
-increase. This means we see a higher increase in the resp when there 
-is poor education, socioeconomic disadvantage, lower income and higher 
-crime. Overall, predictors representing poorer neighborhood quality and
-urban density tend to increase the response variable. Indicators of weatlh
-and residential space correspond to lower response outcomes.
+
+### When looking at the correlation matrix, we see that the zn, rm, dis, black, and medv are all negatively correlated with the response variable. The median value of homes has the largest negative correlation at -.6 meaning the higher the median value of homes in the area, the lower the response variable is. We see that all other variables have a positive correlation with the response variable including crime, ptratio and nox meaning that the response increases when both crime and nitric oxide increase. This means we see a higher increase in the resp when there is poor education, socioeconomic disadvantage, lower income and higher crime. Overall, predictors representing poorer neighborhood quality andurban density tend to increase the response variable. Indicators of wealth and residential space correspond to lower response outcomes.
+
+## Scatterplots of Predictor Variables and Response Variable:
+
+```{r}
+par(mfrow = c(3, 5))
+for (var in predictors) {
+  plot(bostonClean[[var]], bostonClean$Resp,
+       main = paste("Resp vs", var),
+       xlab = var, ylab = "Resp",
+       col = "blue", pch = 16)
+}
+title("Figure 1: Scatter plots of each individual predictor variable and the response variable.", outer = TRUE, line = -1, cex.main = 1.5)
+```
