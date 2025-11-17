@@ -27,7 +27,7 @@ summary(bostonClean)
 
 ## Histograms of Predictor Variables: 
 
-```{r}}
+```{r}
 predictors <- setdiff(names(bostonClean), "Resp")
 # Plot first 3
 par(mfrow=c(2,2))
@@ -70,9 +70,9 @@ for (i in 9:14) {
 ## Correlation Matrix:
 ```{r}
 library(ggcorrplot)
-Boston.Stat4620 <- Boston.Stat4620 %>%
+bostonClean <- bostonClean %>%
   mutate(Resp = as.numeric(Resp))
-numeric_vars <- Boston.Stat4620 %>% select_if(is.numeric)
+numeric_vars <- bostonClean %>% select_if(is.numeric)
 
 # Compute correlation matrix
 corr_matrix <- cor(numeric_vars, use = "complete.obs")
@@ -93,7 +93,7 @@ resp_corr <- corr_matrix[,"Resp"] %>% sort(decreasing = TRUE)
 round(resp_corr, 3)
 ```
 
-### When looking at the correlation matrix, we see that the zn, rm, dis, black, and medv are all negatively correlated with the response variable. The median value of homes has the largest negative correlation at -.6 meaning the higher the median value of homes in the area, the lower the response variable is. We see that all other variables have a positive correlation with the response variable including crime, ptratio and nox meaning that the response increases when both crime and nitric oxide increase. This means we see a higher increase in the resp when there is poor education, socioeconomic disadvantage, lower income and higher crime. Overall, predictors representing poorer neighborhood quality andurban density tend to increase the response variable. Indicators of wealth and residential space correspond to lower response outcomes.
+## Using a correlation matrix, we have to look at only numeric variables, so we will further dig into the effect of chas (factor variable) on the response variable visually in the last step of our exploratory analysis. When looking at the correlation matrix, we can make note of a few variables that have significant correlations, some positive and some negative, with our mystery response variable. Note that a negative correlation between two variables is significant if the value is around or less than -0.50, and a positive correlation between two variables is significant if the value is around or greater than 0.50. Knowing this, we can note medv, rm, and zn to have significant negative correlations with Resp. Similarly, lstat, ptratio, and nox have positive significant correlations with Resp. 
 
 ## Scatterplots of Predictor Variables and Response Variable:
 
@@ -108,4 +108,49 @@ for (var in predictors) {
 title("Figure 1: Scatter plots of each individual predictor variable and the response variable.", outer = TRUE, line = -1, cex.main = 1.5)
 ```
 
-### To further our exploratory analysis, we plotted each individual predictor variable against the response variable to visually assess potential correlations following the correlation matrix. As shown in Figure 1, several predictors exhibit clear relationships with the response. The scatterplot of Resp versus crim suggests a possible positive logistic relationship, as the data points follow a curved, logistic-like pattern. The variable chas appears to have a binomial relationship with Resp since the spread of values differs noticeably between chas = 0 and chas = 1. The relationship between Resp and nox appears to be roughly positive and linear, whereas rm shows the opposite trend, indicating a potential negative linear association with the response variable. A similar positive linear trend is observed between Resp and ptratio, while medv displays a negative linear pattern. Additionally, black may have a negative logistic relationship with Resp, and lstat may show a positive logistic pattern. The remaining variables display no apparent relationship with Resp, as their scatterplots show randomly scattered points with no discernible trend. Overall, the variables crim, chas, nox, rm, ptratio, medv, black, and lstat appear to have meaningful associations with the response variable and will be considered as predictors in our model selection process! 
+### To further our exploratory analysis, we plotted each individual predictor variable against the response variable to visually assess potential correlations following the correlation matrix. As shown in Figure 1, several predictors exhibit clear relationships with the response. The variable chas appears to have a binomial relationship with Resp since the spread of values differs noticeably between chas = 0 and chas = 1. The relationship between Resp and nox appears to be roughly positive and linear, whereas rm and zn both show the opposite trend, indicating potential negative linear associations with the response variable. A similar positive linear trend is observed between Resp and ptratio, while medv displays a negative linear pattern. Additionally, lstat may show a positive logistic relationship with Resp as it shows a positive curve-like pattern. The remaining variables display no apparent relationship with Resp, as their scatterplots show randomly scattered points with no discernible trend. Overall, the variables zn, chas, nox, rm, ptratio, medv, and lstat appear to visually have meaningful associations with the response variable. 
+
+### Based on our correlation matrix and our scatterplots of the predictor variables with the response variable, we are confident in using the following predictor variables in our final model: chas, nox, rm, zn, ptratio, medv, and lstat.
+
+# Model Selection:
+
+## Ridge Regression
+
+```{r}
+library(glmnet)
+library(caret)
+
+set.seed(4620)
+
+# Training data and testing data split
+train_index <- createDataPartition(bostonClean$Resp, p = 0.7, list = FALSE)
+train <- bostonClean[train_index, ]
+test  <- bostonClean[-train_index, ]
+
+x_train <- model.matrix(Resp ~ ., train)[, -1]
+y_train <- train$Resp
+
+x_test  <- model.matrix(Resp ~ ., test)[, -1]
+y_test  <- test$Resp
+
+ridge_cv <- cv.glmnet(x_train, y_train, alpha = 0)
+best_lambda_ridge <- ridge_cv$lambda.min
+
+ridge_pred <- predict(ridge_cv, s = best_lambda_ridge, newx = x_test)
+
+ridge_mse <- mean((ridge_pred - y_test)^2)
+cat("Ridge Regression Test MSE:", ridge_mse, "\n")
+```
+
+## Lasso Regression
+
+```{r}
+lasso_cv <- cv.glmnet(x_train, y_train, alpha = 1)
+best_lambda_lasso <- lasso_cv$lambda.min
+
+lasso_pred <- predict(lasso_cv, s = best_lambda_lasso, newx = x_test)
+
+lasso_mse <- mean((lasso_pred - y_test)^2)
+
+cat("Lasso Regression Test MSE:", lasso_mse, "\n")
+```
