@@ -1,1 +1,43 @@
+# Model Selection:
+
+## Ridge Regression
+
+```{r}
+library(glmnet)
+library(caret)
+
+set.seed(4620)
+
+# Training data and testing data split
+train_index <- createDataPartition(boston_final$Resp, p = 0.7, list = FALSE)
+train <- boston_final[train_index, ]
+test  <- boston_final[-train_index, ]
+
+x_train <- model.matrix(Resp ~ ., train)[, -1]
+y_train <- train$Resp
+
+x_test  <- model.matrix(Resp ~ ., test)[, -1]
+y_test  <- test$Resp
+
+ridge_cv <- cv.glmnet(x_train, y_train, alpha = 0.05)
+best_lambda_ridge <- ridge_cv$lambda.min
+
+ridge_pred <- predict(ridge_cv, s = best_lambda_ridge, newx = x_test)
+
+ridge_mse <- mean((ridge_pred - y_test)^2)
+cat("Ridge Regression Test MSE:", ridge_mse, "\n")
+```
+
+## Lasso Regression
+
+```{r}
+lasso_cv <- cv.glmnet(x_train, y_train, alpha = 0.05)
+best_lambda_lasso <- lasso_cv$lambda.min
+
+lasso_pred <- predict(lasso_cv, s = best_lambda_lasso, newx = x_test)
+
+lasso_mse <- mean((lasso_pred - y_test)^2)
+
+cat("Lasso Regression Test MSE:", lasso_mse, "\n")
+```
 
