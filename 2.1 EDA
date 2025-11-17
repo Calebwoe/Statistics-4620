@@ -133,7 +133,7 @@ y_train <- train$Resp
 x_test  <- model.matrix(Resp ~ ., test)[, -1]
 y_test  <- test$Resp
 
-ridge_cv <- cv.glmnet(x_train, y_train, alpha = 0)
+ridge_cv <- cv.glmnet(x_train, y_train, alpha = 0.05)
 best_lambda_ridge <- ridge_cv$lambda.min
 
 ridge_pred <- predict(ridge_cv, s = best_lambda_ridge, newx = x_test)
@@ -145,7 +145,7 @@ cat("Ridge Regression Test MSE:", ridge_mse, "\n")
 ## Lasso Regression
 
 ```{r}
-lasso_cv <- cv.glmnet(x_train, y_train, alpha = 1)
+lasso_cv <- cv.glmnet(x_train, y_train, alpha = 0.05)
 best_lambda_lasso <- lasso_cv$lambda.min
 
 lasso_pred <- predict(lasso_cv, s = best_lambda_lasso, newx = x_test)
