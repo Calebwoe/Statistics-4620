@@ -139,3 +139,60 @@ plot(train$nox, y_train,
      pch = 20, col = "gray")
 lines(ss_nox, col = "blue", lwd = 2)
 ```
+
+## Natural Spline
+
+```{R}
+library(splines)
+
+ns_results = data.frame(Predictor = predictors, NaturalSpline_MSE = NA)
+
+for (i in seq_along(predictors)) {
+  var = predictors[i]
+
+  knots = quantile(train[[var]], probs = c(0.25, 0.5, 0.75))
+
+  ns_train = ns(train[[var]], knots = knots)
+  ns_test  = ns(test[[var]],  knots = knots)
+
+  colnames(ns_test) = colnames(ns_train)
+
+  df_train = as.data.frame(ns_train)
+  df_test  = as.data.frame(ns_test)
+
+  fit_ns = lm(y_train ~ ., data = df_train)
+
+  pred_ns = predict(fit_ns, newdata = df_test)
+
+  mse = mean((y_test - pred_ns)^2)
+  ns_results$NaturalSpline_MSE[i] = mse
+  
+  cat("Natural Spline MSE for", var, ":", mse, "\n")
+}
+
+ns_results
+```
+
+# Similarly to the results of the cubic spline, it would appear that medv has the lowest MSE and is therefore the best model. However, unlike the cubic spline, using natural splines makes it so that rm is actually the second-best predictor rather than nox. However, medv is still significantly lower than the other predictors, making it by far the best.
+
+```{R}
+ns_medv = lm(y_train ~ ns(train$medv, knots = quantile(train$medv, probs = c(0.25, 0.5, 0.75))))
+ns_rm   = lm(y_train ~ ns(train$rm,   knots = quantile(train$rm,   probs = c(0.25, 0.5, 0.75))))
+
+pred_medv = predict(ns_medv, newdata = data.frame(train$medv))
+pred_rm   = predict(ns_rm,   newdata = data.frame(train$rm))
+
+# Plot of y ~ medv
+plot(train$medv, y_train,
+     main = "Natural Spline: y ~ medv",
+     xlab = "medv", ylab = "y",
+     pch = 20, col = "gray")
+lines(train$medv[order(train$medv)], pred_medv[order(train$medv)], col = "red", lwd = 2)
+
+# Plot of y ~ rm
+plot(train$rm, y_train,
+     main = "Natural Spline: y ~ rm",
+     xlab = "rm", ylab = "y",
+     pch = 20, col = "gray")
+lines(train$rm[order(train$rm)], pred_rm[order(train$rm)], col = "red", lwd = 2)
+```
