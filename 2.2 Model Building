@@ -40,4 +40,102 @@ lasso_mse <- mean((lasso_pred - y_test)^2)
 
 cat("Lasso Regression Test MSE:", lasso_mse, "\n")
 ```
+##Splines
+```{r}
+if (!require("splines"))
+{
+install.packages("splines")
+library(splines)
+}
+```
+#When using the splines, we need to choose some variables to look at, since, chas is binary we will not be able to use it in our spline.We also choose to not look at the zn due to it's zeros. 
 
+
+##Cubic Spline
+#Will look at 5 seperate cubic splines to evaluate each predictor
+```{r}
+set.seed(4620)
+predictors <- c("nox", "rm", "ptratio", "medv", "lstat")
+mse_results <- data.frame(Predictor = predictors, CubicSpline_MSE = NA)
+
+#For loop to include all predictors
+for (i in seq_along(predictors)) {
+  var <- predictors[i]
+  
+  knots <- quantile(train[[var]], probs = c(0.25, 0.5, 0.75))
+  
+  # Basis functions for training and test sets
+  bs_train <- bs(train[[var]], knots = knots, degree = 3, intercept = TRUE)
+  bs_test  <- bs(test[[var]],  knots = knots, degree = 3, intercept = TRUE)
+  
+  # Match column names
+  colnames(bs_test) <- colnames(bs_train)
+  
+  # Convert to data frames
+  df_train <- as.data.frame(bs_train)
+  df_test  <- as.data.frame(bs_test)
+  
+  # Fit model
+  fit_cs <- lm(y_train ~ ., data = df_train)
+  
+  # Predict
+  pred_cs <- predict(fit_cs, newdata = df_test)
+  
+  # MSE
+  mse <- mean((y_test - pred_cs)^2)
+  mse_results$CubicSpline_MSE[i] <- mse
+  
+  cat("Cubic Spline MSE for", var, ":", mse, "\n")
+}
+```
+#When looking at the test MSE's for the 5 seperate cubic spline models we see that the medv is the best model and nox is the second best. However the medv stands out from the rest and has the strongest nonlinear relationshiop with the response variable
+
+```{r}
+# Created a dataframe that holds the results for both medv and nox
+smooth_results <- data.frame(
+  Predictor = c("medv", "nox"),
+  SmoothingSpline_MSE = NA,
+  Effective_DF = NA
+)
+
+#Medv smoothing spline
+ss_medv <- smooth.spline(train$medv, y_train, cv = TRUE)
+pred_medv <- predict(ss_medv, x = test$medv)$y
+
+mse_medv <- mean((y_test - pred_medv)^2)
+smooth_results$SmoothingSpline_MSE[1] <- mse_medv
+smooth_results$Effective_DF[1] <- ss_medv$df
+
+cat("Smoothing Spline MSE for medv:", mse_medv, "\n")
+cat("Effective Degrees of Freedom (medv):", ss_medv$df, "\n\n")
+
+
+#Nox
+ss_nox <- smooth.spline(train$nox, y_train, cv = TRUE)
+pred_nox <- predict(ss_nox, x = test$nox)$y
+
+mse_nox <- mean((y_test - pred_nox)^2)
+smooth_results$SmoothingSpline_MSE[2] <- mse_nox
+smooth_results$Effective_DF[2] <- ss_nox$df
+
+cat("Smoothing Spline MSE for nox:", mse_nox, "\n")
+cat("Effective Degrees of Freedom (nox):", ss_nox$df, "\n\n")
+
+
+# Print results table
+smooth_results
+
+```
+```{r}
+plot(train$medv, y_train,
+     main = "Smoothing Spline: y ~ medv",
+     xlab = "medv", ylab = "y",
+     pch = 20, col = "gray")
+lines(ss_medv, col = "blue", lwd = 2)
+
+plot(train$nox, y_train,
+     main = "Smoothing Spline: y ~ nox",
+     xlab = "nox", ylab = "y",
+     pch = 20, col = "gray")
+lines(ss_nox, col = "blue", lwd = 2)
+```
