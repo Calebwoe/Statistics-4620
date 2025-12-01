@@ -15,7 +15,7 @@ any(is.na(Boston.Stat4620)) # # missing variables exist
 summary(Boston.Stat4620) # Resp variables with 10 NA
 ```
 
-### We can see from the above data summaries that the mystery response variable has 10 NAs, so we will remove these observations from our dataset.
+### We can see from the above data summaries that the mystery response variable has 10 NAs, so we will remove these observations from our dataset. Upon removal, the command returns FALSE and confirms we have removed observations with null values and proceed with our analysis 
 
 ## Create Variable Summaries:
 
