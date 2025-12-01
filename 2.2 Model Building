@@ -28,6 +28,16 @@ ridge_mse <- mean((ridge_pred - y_test)^2)
 cat("Ridge Regression Test MSE:", ridge_mse, "\n")
 ```
 
+## Linear Regression
+```{r}
+linear = lm(Resp ~ ., data = train)
+summary(linear)
+
+linear_pred <- predict(linear, newdata = test)
+linear_mse = mean((linear_pred - y_test)^2)
+cat("Linear Regression Test MSE:", linear_mse, "\n")
+```
+
 ## Lasso Regression
 
 ```{r}
